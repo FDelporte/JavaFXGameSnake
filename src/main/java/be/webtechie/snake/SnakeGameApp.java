@@ -1,53 +1,126 @@
 package be.webtechie.snake;
 
-import be.webtechie.snake.view.GameView;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.Scene;
+import static com.almasb.fxgl.dsl.FXGL.getAppHeight;
+import static com.almasb.fxgl.dsl.FXGL.getAppWidth;
+import static com.almasb.fxgl.dsl.FXGL.getGameController;
+import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
+import static com.almasb.fxgl.dsl.FXGL.onCollisionBegin;
+import static com.almasb.fxgl.dsl.FXGL.onKey;
+import static com.almasb.fxgl.dsl.FXGL.run;
+import static com.almasb.fxgl.dsl.FXGL.showMessage;
+import static com.almasb.fxgl.dsl.FXGL.spawn;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameScene;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameState;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.getUIFactory;
+
+import be.webtechie.snake.SnakeGameFactory.EntityType;
+import com.almasb.fxgl.app.GameApplication;
+import com.almasb.fxgl.app.GameSettings;
+import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.EntityFactory;
+import java.util.Map;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.util.Duration;
 
-// https://www.codeproject.com/tips/788527/creating-animation-from-sequence-of-images-in-java
-public class SnakeGameApp extends Application {
+public class SnakeGameApp extends GameApplication {
 
-    private static final int WIDTH = 640;
-    private static final int HEIGHT = 900;
+    /**
+     * Reference to the factory which will defines how all the types must be created.
+     */
+    private final SnakeGameFactory sharkGameFactory = new SnakeGameFactory();
 
-    private GameView view;
+    /**
+     * Player object we are going to use to provide to the factory so it can start a bullet from the player center.
+     */
+    private Entity player;
 
-    @Override
-    public void init() {
-        view = new GameView(WIDTH, HEIGHT);
-    }
-
-    @Override
-    public void start(Stage stage) {
-        Scene scene = new Scene(view, WIDTH, HEIGHT);
-        scene.setOnKeyPressed(this::handleKeyPress);
-        scene.setOnMouseMoved(this::mouseMoved);
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.setTitle("Viks Shark Game");
-        stage.show();
-    }
-
-    private void mouseMoved(MouseEvent mouseEvent) {
-        this.view.handleMouseMoved(mouseEvent);
-    }
-
-    private void handleKeyPress(KeyEvent keyEvent) {
-        this.view.handleKeyPress(keyEvent);
-    }
-
-    @Override
-    public void stop() {
-        Platform.exit();
-        System.exit(0);
-    }
-
+    /**
+     * Main entry point where the application starts.
+     *
+     * @param args Start-up arguments
+     */
     public static void main(String[] args) {
+        // Launch the FXGL game application
         launch(args);
+    }
+
+    /**
+     * General game settings. For now only the title is set, but a longer list of options is available.
+     *
+     * @param settings The settings of the game which can be further extended here.
+     */
+    @Override
+    protected void initSettings(GameSettings settings) {
+        settings.setTitle("Viks Snake Game");
+    }
+
+    /**
+     * General game variables. Used to hold the points and lives.
+     *
+     * @param vars The variables of the game which can be further extended here.
+     */
+    @Override
+    protected void initGameVars(Map<String, Object> vars) {
+        vars.put("score", 0);
+        vars.put("lives", 5);
+    }
+
+    @Override
+    protected void initUI() {
+        Text scoreLabel = getUIFactory().newText("Score", Color.BLACK, 22);
+        Text scoreValue = getUIFactory().newText("", Color.BLACK, 22);
+        Text livesLabel = getUIFactory().newText("Lives", Color.BLACK, 22);
+        Text livesValue = getUIFactory().newText("", Color.BLACK, 22);
+
+        scoreLabel.setTranslateX(20);
+        scoreLabel.setTranslateY(20);
+
+        scoreValue.setTranslateX(90);
+        scoreValue.setTranslateY(20);
+
+        livesLabel.setTranslateX(getAppWidth() - 100);
+        livesLabel.setTranslateY(20);
+
+        livesValue.setTranslateX(getAppWidth() - 30);
+        livesValue.setTranslateY(20);
+
+        scoreValue.textProperty().bind(getGameState().intProperty("score").asString());
+        livesValue.textProperty().bind(getGameState().intProperty("lives").asString());
+
+        getGameScene().addUINodes(scoreLabel, scoreValue, livesLabel, livesValue);
+    }
+
+    /**
+     * Input configuration, here you configure all the input events like key presses, mouse clicks, etc.
+     */
+    @Override
+    protected void initInput() {
+        onKey(KeyCode.LEFT, () -> this.player.translateX(-5));
+        onKey(KeyCode.RIGHT, () -> this.player.translateX(5));
+        onKey(KeyCode.UP, () -> this.player.translateY(-5));
+        onKey(KeyCode.DOWN, () -> this.player.translateY(5));
+    }
+
+    /**
+     * Initialization of the game by providing the {@link EntityFactory}.
+     */
+    @Override
+    protected void initGame() {
+        getGameWorld().addEntityFactory(this.sharkGameFactory);
+
+        // Add the player
+        this.player = spawn("snake", getAppWidth() / 2, getAppHeight() / 2);
+    }
+
+    @Override
+    protected void onUpdate(double tpf) {
+
+    }
+
+    @Override
+    protected void initPhysics() {
+
     }
 }
