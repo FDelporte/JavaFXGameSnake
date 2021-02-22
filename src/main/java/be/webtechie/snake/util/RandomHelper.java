@@ -1,4 +1,4 @@
-package be.webtechie.shark.util;
+package be.webtechie.snake.util;
 
 import java.util.Random;
 

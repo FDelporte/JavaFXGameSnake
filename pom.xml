@@ -9,13 +9,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <fxgl.version>11.13</fxgl.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.almasb</groupId>
             <artifactId>fxgl</artifactId>
-            <version>11.8</version>
+            <version>${fxgl.version}</version>
         </dependency>
     </dependencies>
 

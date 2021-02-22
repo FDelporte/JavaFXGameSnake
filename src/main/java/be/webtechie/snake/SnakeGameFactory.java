@@ -1,9 +1,8 @@
 package be.webtechie.snake;
 
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
-import static com.almasb.fxgl.dsl.FXGL.getAppWidth;
 
-import be.webtechie.shark.util.RandomHelper;
+import be.webtechie.snake.component.SnakeSkinComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
@@ -28,10 +27,13 @@ public class SnakeGameFactory implements EntityFactory {
 
     @Spawns("snake")
     public Entity newShark(SpawnData data) {
+        SnakeSkinComponent skin = new SnakeSkinComponent();
+        var channel = new AnimationChannel(skin.getImages(), Duration.millis(250));
         return entityBuilder()
                 .from(data)
                 .type(EntityType.SNAKE)
-                .viewWithBBox(new Rectangle(30, 30, Color.BLUE))
+                .viewWithBBox(new AnimatedTexture(channel).loop())
+                //.viewWithBBox(new Rectangle(30, 30, Color.BLUE))
                 .collidable()
                 .build();
     }

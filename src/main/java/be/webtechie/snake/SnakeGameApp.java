@@ -1,19 +1,10 @@
 package be.webtechie.snake;
 
-import static com.almasb.fxgl.dsl.FXGL.getAppHeight;
-import static com.almasb.fxgl.dsl.FXGL.getAppWidth;
-import static com.almasb.fxgl.dsl.FXGL.getGameController;
-import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
-import static com.almasb.fxgl.dsl.FXGL.onCollisionBegin;
-import static com.almasb.fxgl.dsl.FXGL.onKey;
-import static com.almasb.fxgl.dsl.FXGL.run;
-import static com.almasb.fxgl.dsl.FXGL.showMessage;
-import static com.almasb.fxgl.dsl.FXGL.spawn;
+import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameScene;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameState;
-import static com.almasb.fxgl.dsl.FXGLForKtKt.getUIFactory;
 
-import be.webtechie.snake.SnakeGameFactory.EntityType;
+import be.webtechie.snake.component.SnakeSkinComponent;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.entity.Entity;
@@ -22,7 +13,6 @@ import java.util.Map;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 public class SnakeGameApp extends GameApplication {
 
@@ -69,10 +59,10 @@ public class SnakeGameApp extends GameApplication {
 
     @Override
     protected void initUI() {
-        Text scoreLabel = getUIFactory().newText("Score", Color.BLACK, 22);
-        Text scoreValue = getUIFactory().newText("", Color.BLACK, 22);
-        Text livesLabel = getUIFactory().newText("Lives", Color.BLACK, 22);
-        Text livesValue = getUIFactory().newText("", Color.BLACK, 22);
+        Text scoreLabel = getUIFactoryService().newText("Score", Color.BLACK, 22);
+        Text scoreValue = getUIFactoryService().newText("", Color.BLACK, 22);
+        Text livesLabel = getUIFactoryService().newText("Lives", Color.BLACK, 22);
+        Text livesValue = getUIFactoryService().newText("", Color.BLACK, 22);
 
         scoreLabel.setTranslateX(20);
         scoreLabel.setTranslateY(20);
@@ -97,10 +87,14 @@ public class SnakeGameApp extends GameApplication {
      */
     @Override
     protected void initInput() {
-        onKey(KeyCode.LEFT, () -> this.player.translateX(-5));
-        onKey(KeyCode.RIGHT, () -> this.player.translateX(5));
-        onKey(KeyCode.UP, () -> this.player.translateY(-5));
-        onKey(KeyCode.DOWN, () -> this.player.translateY(5));
+        onKey(KeyCode.LEFT, () -> this.player.getComponentOptional(SnakeSkinComponent.class).ifPresent(
+                SnakeSkinComponent::left));
+        onKey(KeyCode.RIGHT, () -> this.player.getComponentOptional(SnakeSkinComponent.class).ifPresent(
+                SnakeSkinComponent::right));
+        onKey(KeyCode.UP, () -> this.player.getComponentOptional(SnakeSkinComponent.class).ifPresent(
+                SnakeSkinComponent::up));
+        onKey(KeyCode.DOWN, () -> this.player.getComponentOptional(SnakeSkinComponent.class).ifPresent(
+                SnakeSkinComponent::down));
     }
 
     /**
@@ -112,6 +106,7 @@ public class SnakeGameApp extends GameApplication {
 
         // Add the player
         this.player = spawn("snake", getAppWidth() / 2, getAppHeight() / 2);
+        this.player.addComponent(new SnakeSkinComponent());
     }
 
     @Override
