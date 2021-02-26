@@ -4,7 +4,7 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameScene;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameState;
 
-import be.webtechie.snake.component.SnakeSkinComponent;
+import be.webtechie.snake.component.SnakeHeadComponent;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.entity.Entity;
@@ -19,7 +19,7 @@ public class SnakeGameApp extends GameApplication {
     /**
      * Reference to the factory which will defines how all the types must be created.
      */
-    private final SnakeGameFactory sharkGameFactory = new SnakeGameFactory();
+    private final SnakeGameFactory snakeGameFactory = new SnakeGameFactory();
 
     /**
      * Player object we are going to use to provide to the factory so it can start a bullet from the player center.
@@ -43,7 +43,10 @@ public class SnakeGameApp extends GameApplication {
      */
     @Override
     protected void initSettings(GameSettings settings) {
+        settings.setWidth(64 * 15);
+        settings.setHeight(64 * 15);
         settings.setTitle("Viks Snake Game");
+        settings.setTicksPerSecond(10);
     }
 
     /**
@@ -87,14 +90,28 @@ public class SnakeGameApp extends GameApplication {
      */
     @Override
     protected void initInput() {
-        onKey(KeyCode.LEFT, () -> this.player.getComponentOptional(SnakeSkinComponent.class).ifPresent(
-                SnakeSkinComponent::left));
-        onKey(KeyCode.RIGHT, () -> this.player.getComponentOptional(SnakeSkinComponent.class).ifPresent(
-                SnakeSkinComponent::right));
-        onKey(KeyCode.UP, () -> this.player.getComponentOptional(SnakeSkinComponent.class).ifPresent(
-                SnakeSkinComponent::up));
-        onKey(KeyCode.DOWN, () -> this.player.getComponentOptional(SnakeSkinComponent.class).ifPresent(
-                SnakeSkinComponent::down));
+        onKeyDown(KeyCode.LEFT, () -> this.player.getComponentOptional(SnakeHeadComponent.class).ifPresent(
+                SnakeHeadComponent::left));
+        onKeyDown(KeyCode.RIGHT, () -> this.player.getComponentOptional(SnakeHeadComponent.class).ifPresent(
+                SnakeHeadComponent::right));
+        onKeyDown(KeyCode.UP, () -> this.player.getComponentOptional(SnakeHeadComponent.class).ifPresent(
+                SnakeHeadComponent::up));
+        onKeyDown(KeyCode.DOWN, () -> this.player.getComponentOptional(SnakeHeadComponent.class).ifPresent(
+                SnakeHeadComponent::down));
+
+        onKeyDown(KeyCode.F, () -> {
+            player.getComponent(SnakeHeadComponent.class).grow();
+        });
+
+        onKeyDown(KeyCode.G, () -> {
+            player.getComponent(SnakeHeadComponent.class).log();
+        });
+
+        // call to mock
+        
+//        getExecutor().startAsyncFX(() -> {
+//            getInput().mockKeyPress(KeyCode.UP);
+//        });
     }
 
     /**
@@ -102,20 +119,9 @@ public class SnakeGameApp extends GameApplication {
      */
     @Override
     protected void initGame() {
-        getGameWorld().addEntityFactory(this.sharkGameFactory);
+        getGameWorld().addEntityFactory(this.snakeGameFactory);
 
         // Add the player
-        this.player = spawn("snake", getAppWidth() / 2, getAppHeight() / 2);
-        this.player.addComponent(new SnakeSkinComponent());
-    }
-
-    @Override
-    protected void onUpdate(double tpf) {
-
-    }
-
-    @Override
-    protected void initPhysics() {
-
+        this.player = spawn("snakeHead", 0, 0);
     }
 }
